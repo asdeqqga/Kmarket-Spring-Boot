@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kmarket.dao.CsDAO">
+    <insert id="insertqna" parameterType="kr.co.kmarket.vo.CsVO" useGeneratedKeys="true" keyProperty="csNo">
+        insert into `km_cs` set
+        `uid`= #{uid},
+        `cate1`= #{cate1},
+        `cate2`= #{cate2},
+        `type`= #{type},
+        `title`= #{title},
+        `content`= #{content},
+        `regip`= #{regip},
+        `rdate`= NOW();
+
+    </insert>
+    <!-- cs main 게시글 5개 출력-->
+    <select id="select5" resultType="kr.co.kmarket.vo.CsVO">
+        (select * from `km_cs` WHERE `cate1` = 'notice' ORDER BY `csNo` DESC LIMIT 5)
+        UNION
+        (select * from `km_cs` WHERE `cate1` = 'qna' ORDER BY `csNo` DESC LIMIT 5);
+
+    </select>
+    <!-- cs 게시물 select all -->
+    <select id="selectarticles" parameterType="kr.co.kmarket.utils.SearchCondition" resultType="kr.co.kmarket.vo.CsVO">
+        SELECT * FROM `km_cs`
+        WHERE `cate1`=#{cate1}
+        <include refid="cate2"/>
+        <include refid="type"/>
+        ORDER BY `csNo` DESC
+        <include refid="notfaq"/>;
+    </select>
+    <sql id="type">
+        <if test="cate1.equals('faq')">
+            AND `type` = #{type}
+        </if>
+    </sql>
+    <sql id="notfaq">
+        <if test="!cate1.equals('faq')">
+            LIMIT #{offset}, 10
+        </if>
+    </sql>
+    <sql id="cate2">
+        <if test="!cate2.equals('all')">
+            AND `cate2` = #{cate2}
+        </if>
+    </sql>
+    <select id="countAll" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM `km_cs`
+        WHERE `cate1`=#{cate1}
+        <include refid="cate2"/>;
+    </select>
+    <select id="selectarticle" resultType="kr.co.kmarket.vo.CsVO">
+        SELECT * FROM `km_cs`
+        WHERE `csNo`=#{no};
+    </select>
+    <select id="selectfaqtypes" parameterType="kr.co.kmarket.utils.SearchCondition" resultType="kr.co.kmarket.vo.CsVO">
+        SELECT DISTINCT `type` FROM `km_cs` WHERE `cate2`=#{cate2};
+    </select>
+    <select id="selecttermspolicy" parameterType="kr.co.kmarket.vo.TermspolicyVO" resultType="kr.co.kmarket.vo.TermspolicyVO">
+        SELECT * FROM `km_termspolicy`
+        WHERE `cate`=#{cate};
+    </select>
+</mapper>

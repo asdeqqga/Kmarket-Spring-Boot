@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/cs_layout">
+<th:block layout:fragment="main">
+            <article>
+                <nav>
+                    <th:block th:switch="${sc.cate2}">
+                    <h1 th:case="user">회원</h1>
+                    <h1 th:case="coupon">쿠폰/이벤트</h1>
+                    <h1 th:case="order">주문/결제</h1>
+                    <h1 th:case="delivery">배송</h1>
+                    <h1 th:case="cancel">취소/반품/교환</h1>
+                    <h1 th:case="travel">여행/숙박/항공</h1>
+                    <h1 th:case="safeDeal">안전거래</h1>
+                    </th:block>
+                    <h2>가장 자주 묻는 질문입니다.</h2>
+                </nav>
+                <th:block th:each="type:${types}">
+                <div>
+                    <h3>[[${type.type}]]</h3>
+                    <!-- 게시글이 있는 경우 -->
+                        <ul>
+                            <th:block th:each="article,i:${articles}"  th:if="${#strings.equals(type.type, article.type)}">
+                                <li><a th:href="@{/cs/faq/view} + ${ph.sc.getQueryString(ph.sc.page, article.csNo)}"
+                                        class="title" th:data-no="${article.csNo}"><span>Q.</span>[[${article.title}]]</a></li>
+                            </th:block>
+                                <li class="more"><a href="#">더보기</a> </li>
+                        </ul>
+                </div>
+                </th:block>
+            </article>
+        </section>
+    </div>
+</section>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/faqlist.js}"></script>
+</th:block>

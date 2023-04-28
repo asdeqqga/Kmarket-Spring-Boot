@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kmarket.dao.AdminDAO">
+
+    <select id="selectLatest" resultType="kr.co.kmarket.vo.CsVO">
+        select * from `km_cs`
+            where `cate1` = #{cate1}
+            order by `csNo` desc limit 5;
+    </select>
+
+    <!-- 상품 등록 -->
+    <insert id="insertProductAdmin">
+        insert into `km_product` set
+            `cate1` = #{cate1},
+            `cate2` = #{cate2},
+            `prodName` = #{prodName},
+            `descript` = #{descript},
+            `company` = #{company},
+            `seller` = #{seller},
+            `price` = #{price},
+            `discount` = #{discount},
+            `point` = #{point},
+            `stock` = #{stock},
+            `delivery` = #{delivery},
+            `thumb1` = #{thumb1},
+            `thumb2` = #{thumb2},
+            `thumb3` = #{thumb3},
+            `detail` = #{detail},
+            `status` = #{status},
+            `duty` = #{duty},
+            `receipt` = #{receipt},
+            `bizType` = #{bizType},
+            `origin` = #{origin},
+            `ip` = #{ip},
+            `rdate` = NOW();
+    </insert>
+
+    <!-- 상품 조회 -->
+    <select id="selectProductAdmin" parameterType="kr.co.kmarket.utils.SearchCondition" resultType="kr.co.kmarket.vo.ProductVO">
+        select a.*, b.uid from `km_product` as a
+        join `km_member_seller` as b
+        on a.seller = b.uid
+        where 1=1
+        <include refid="searchCondition"/>
+        <include refid="sellerType2"/>
+        order by `prodNo` desc
+        limit #{offset}, 10;
+    </select>
+
+    <!-- 상품 조회시 전체 상품 갯수 -->
+    <select id="countProductAdmin" parameterType="kr.co.kmarket.utils.SearchCondition"  resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM `km_product`
+        where 1=1
+        <include refid="searchCondition"/>
+        <include refid="sellerType2"/>
+    </select>
+
+    <!-- 상품 정보 수정 -->
+    <update id="modifyProduct" parameterType="kr.co.kmarket.vo.ProductVO">
+        update `km_product` set `prodName` = #{prodName},
+                                `price` = #{price},
+                                `discount` = #{discount},
+                                `point` = #{point},
+                                `stock` = #{stock}
+                                where `prodNo` = #{prodNo};
+    </update>
+
+    <!-- 상품 삭제 -->
+    <delete id="deleteProduct">
+        delete from `km_product` where `prodNo` = #{prodNo};
+    </delete>
+
+<!-- ///////////////////////////////// Admin Cs///////////////////////////////// -->
+
+    <!-- 고객센터 글 등록 -->
+    <insert id="insertCs" keyProperty="csNo">
+        insert into `km_cs` set
+                `uid` = #{uid},
+                `cate1` = #{cate1},
+                `cate2` = #{cate2},
+                `type` = #{type},
+                `title` = #{title},
+                `content` = #{content},
+                `regip` = #{regip},
+                `rdate` = NOW();
+    </insert>
+
+    <!-- 고객센터 게시글 리스트 -->
+    <select id="selectCsAdmins" resultType="kr.co.kmarket.vo.CsVO">
+        select *
+        from `km_cs`
+        where `cate1` = #{cate1}
+        <include refid="csCategory2"/>
+        <include refid="csType"/>
+        order by `csNo` desc
+        limit #{offset}, 10;
+    </select>
+
+    <!-- 고객센터 글 보기 -->
+    <select id="selectCsAdmin" resultType="kr.co.kmarket.vo.CsVO">
+        select * from `km_cs` where csNo = #{csNo};
+    </select>
+
+    <!-- 고객센터 글 수정 -->
+    <update id="updateCs">
+        update `km_cs` set
+                type = #{type},
+                title = #{title},
+                content = #{content}
+        where csNo = #{csNo};
+    </update>
+
+    <!-- 고객센터 답변 수정 -->
+    <update id="updateComment">
+        update `km_cs` set `comment` = #{comment} where csNo = #{csNo};
+    </update>
+
+    <!-- 고객센터 게시글 수 -->
+    <select id="countCsAdmin" parameterType="kr.co.kmarket.utils.SearchCondition"  resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM `km_cs`
+        where `cate1` = #{cate1}
+        <include refid="csCategory2"/>
+        <include refid="csType"/>
+    </select>
+
+    <delete id="deleteCs">
+        delete from `km_cs` where `csNo` = #{csNo};
+    </delete>
+
+    <!-- config banner -->
+    <insert id="insertBanner" keyProperty="bannerNo">
+        insert into `km_banner` set
+            bannerName = #{bannerName},
+            width = #{width},
+            height = #{height},
+            color = #{color},
+            link = #{link},
+            position = #{position},
+            dateBegin = #{dateBegin},
+            dateEnd = #{dateEnd},
+            timeBegin = #{timeBegin},
+            timeEnd = #{timeEnd},
+            image = #{image};
+    </insert>
+
+    <select id="selectBanner1" resultType="kr.co.kmarket.vo.BannerVO">
+        select * from `km_banner` where `position` = 'MAIN1';
+    </select>
+    <select id="selectBanner2" resultType="kr.co.kmarket.vo.BannerVO">
+        select * from `km_banner` where `position` = 'MAIN2';
+    </select>
+    <select id="selectBanner3" resultType="kr.co.kmarket.vo.BannerVO">
+        select * from `km_banner` where `position` = 'PRODUCT1';
+    </select>
+    <select id="selectBanner4" resultType="kr.co.kmarket.vo.BannerVO">
+        select * from `km_banner` where `position` = 'MEMBER1';
+    </select>
+    <select id="selectBanner5" resultType="kr.co.kmarket.vo.BannerVO">
+        select * from `km_banner` where `position` = 'MY1';
+    </select>
+
+    <!-- ///////////////////////////////// include ///////////////////////////////// -->
+
+    <!-- 검색 조건 -->
+    <sql id="searchCondition">
+        <if test="searchField != null">
+            <choose>
+                <when test='searchField == "prodName"'>
+                    AND `prodName` LIKE CONCAT('%', #{searchWord}, '%')
+                </when>
+                <when test='searchField == "prodNo"'>
+                    AND `prodNo` LIKE CONCAT('%', #{searchWord}, '%')
+                </when>
+                <when test='searchField == "seller"'>
+                    AND `seller` LIKE CONCAT('%', #{searchWord}, '%')
+                </when>
+            </choose>
+        </if>
+    </sql>
+
+    <!-- type이 2라면 해당 판매자가 등록한 상품만 조회 -->
+    <sql id="sellerType2">
+        <if test="type == 2">
+            AND `seller` = #{uid}
+        </if>
+    </sql>
+
+    <!-- cate2 유형별 리스트 출력 -->
+    <sql id="csCategory2">
+        <if test='cate2 != null'>
+            and `cate2` = #{cate2}
+        </if>
+    </sql>
+
+    <!-- cs type 유형별 리스트 출력 -->
+    <sql id="csType">
+        <if test="csType != null">
+            and `type` = #{csType}
+        </if>
+    </sql>
+</mapper>

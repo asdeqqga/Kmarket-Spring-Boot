@@ -1,0 +1,84 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<section id="admin-cs-list">
+    <nav>
+        <h3>문의하기 목록</h3>
+        <p>
+            HOME > 고객센터 > <strong>문의하기</strong>
+        </p>
+    </nav>
+    <!-- 고객센터 컨텐츠 시작 -->
+    <section id="faqQna">
+        <div>
+            <select name="cate2" class="category2" onchange="optionChangeCs();">
+                <option value="">1차 선택</option>
+                <option value="user">회원</option>
+                <option value="coupon">쿠폰/혜택/이벤트</option>
+                <option value="order">주문/결제</option>
+                <option value="delivery">배송</option>
+                <option value="cancel">취소/반품/교환</option>
+                <option value="travel">여행/숙박/항공</option>
+                <option value="safeDeal">안전거래</option>
+            </select>
+            <select name="type" id="type" class="type">
+                <option value="">2차 선택</option>
+            </select>
+            <a th:href="@{/admin/cs/list(cate1=${cate1})}">&nbsp 초기화</a>
+        </div>
+        <table>
+            <tr>
+                <th><input type="checkbox" name="allCheck" onclick="selectAll(this)"/></th>
+                <th>번호</th>
+                <th>1차유형</th>
+                <th>2차유형</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+                <th>상태</th>
+            </tr>
+
+            <th:block th:if="${#lists.size(articles) != 0}">
+                <tr th:each="article, i : ${articles}">
+                    <td><input type="checkbox" name="check" th:value="${article.csNo}"/></td>
+                    <td>[[${article.csNo}]]</td>
+                    <td>[[${article.cate2}]]</td>
+                    <td>[[${article.type}]]</td>
+                    <td>
+                        <a th:href="@{/admin/cs/view(cate1=${cate1},csNo=${article.csNo})}" th:text="|[${article.type}] ${article.title}|"></a>
+                    </td>
+                    <td>[[${article.uid}]]</td>
+                    <td th:text="|${#strings.substring(article.rdate, 2, 10)}|"></td>
+                    <th:block th:if="${article.comment} == null">
+                        <td>검토중</td>
+                    </th:block>
+                    <th:block th:if="${article.comment} != null">
+                        <td>답변완료</td>
+                    </th:block>
+                </tr>
+            </th:block>
+            <th:block th:if="${#lists.size(articles) == 0}">
+                <tr> <td colspan="11" class="noArticles">등록된 질문이 없습니다.</td> </tr>
+            </th:block>
+        </table>
+
+        <input type="button" value="선택삭제" id="deleteButton" onclick="deleteCheckedCs()"/>
+
+        <!-- 페이징 -->
+        <!-- 게시글이 없을 경우 페이징 숨기기 -->
+        <div class="paging" th:style="${#lists.size(articles) == 0 ? 'visibility : hidden;' : ''}"  th:object="${ph}">
+            <th:block th:if="*{showPrev}">
+                <a th:href="@{/admin/cs/list} + ${ph.sc.getQueryString(ph.beginPage-1)}" class="prev">< 이전</a>
+            </th:block>
+
+            <th:block th:each="num:${#numbers.sequence(ph.beginPage, ph.endPage)}">
+                <a th:href="@{/admin/cs/list} + ${ph.sc.getQueryString(num)}" th:class="${num == ph.sc.page ? 'num current':'num'}">
+                    [[${num}]]
+                </a>
+            </th:block>
+
+            <th:block th:if="*{showNext}">
+                <a th:href="@{/admin/cs/list} + ${ph.sc.getQueryString(ph.endPage+1)}" class="next">다음 ></a>
+            </th:block>
+        </div>
+
+    </section>
+</section>

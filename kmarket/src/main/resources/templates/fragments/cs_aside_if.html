@@ -1,0 +1,12 @@
+    <th:block th:if="${sc.cate1 == 'null'}">
+        <th:block th:replace="fragments/cs_aside::null"></th:block>
+    </th:block>
+    <th:block th:if="${sc.cate1 == 'notice'}">
+      <th:block th:replace="fragments/cs_aside::notice"></th:block>
+    </th:block>
+    <th:block th:if="${sc.cate1 == 'qna'}">
+      <th:block th:replace="fragments/cs_aside::qna"></th:block>
+    </th:block>
+    <th:block th:if="${sc.cate1 == 'faq'}">
+      <th:block th:replace="fragments/cs_aside::faq"></th:block>
+    </th:block>

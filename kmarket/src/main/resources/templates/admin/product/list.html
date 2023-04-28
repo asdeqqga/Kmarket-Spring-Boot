@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="layout/adminLayout">
+<th:block layout:fragment="main">
+        <section id="admin-product-list">
+            <nav>
+                <h3>상품목록</h3>
+                <p>
+                    HOME > 상품관리 > <strong>상품목록</strong>
+                </p>
+            </nav>
+            <!-- 상품목록 컨텐츠 시작 -->
+            <section>
+                <form th:action="@{/admin/product/list}">
+                    <div>
+                            <select name="searchField">
+                                <option value="prodName" th:selected="${ph.sc.searchField == 'prodName'}">상품명</option>
+                                <option value="prodNo" th:selected="${ph.sc.searchField == 'prodNo'}">상품코드</option>
+                                <option value="seller" th:selected="${ph.sc.searchField == 'seller'}">판매자</option>
+                            </select>
+                        <input type="text" name="searchWord" placeholder="검색하기" th:value="${param.searchWord}"/>
+                        <input type="submit" class="searchButton" value="검색하기"/>
+                    </div>
+                </form>
+                <table>
+                    <tr>
+                        <th><input type="checkbox" name="allCheck" value="all" onclick="selectAll(this)"/></th>
+                        <th>이미지</th>
+                        <th>상품코드</th>
+                        <th>상품명</th>
+                        <th>판매가격</th>
+                        <th>할인율</th>
+                        <th>포인트</th>
+                        <th>재고</th>
+                        <th>판매자</th>
+                        <th>조회</th>
+                        <th>관리</th>
+                    </tr>
+                    <!-- 게시글이 있는 경우 -->
+                    <th:block th:if="${#lists.size(products) != 0}">
+                        <tr th:each="product,i:${products}">
+                            <td><input type="checkbox" name="check" th:value="${product.prodNo}"/></td>
+                            <td>
+                                <a th:href="@{/product/view(prodNo=${product.prodNo})}">
+                                    <img th:src="@{/file/} + ${product.thumb1}" class="thumb">
+                                </a>
+                            </td>
+                            <td class="prodNo">[[${product.prodNo}]]</td>
+                            <td class="prodName">
+                                <a th:href="@{/product/view(prodNo=${product.prodNo})}" th:text="|${product.prodName}|"></a>
+                            </td>
+                            <td>[[${product.price}]]</td> <!-- 세자리 수 콤마 [[${#numbers.formatInteger(product.price, 3, 'COMMA') + '원'}]] -->
+                            <td>[[${product.discount}]]</td>
+                            <td>[[${product.point}]]</td>
+                            <td>[[${product.stock}]]</td>
+                            <td class="seller">[[${product.seller}]]</td>
+                            <td>[[${product.hit}]]</td>
+                            <td>
+                                <a href="#" class="remove" th:data-no="${product.prodNo}">[삭제]</a>
+                                <a href="#" class="modify" th:data-no="${product.prodNo}">[수정]</a>
+                            </td>
+                        </tr>
+                    </th:block>
+
+                    <!-- 상품이 없을 경우 -->
+                    <th:block th:if="${#lists.size(products) == 0}">
+                        <tr> <td colspan="11" class="noProduct">등록된 상품이 없습니다.</td> </tr>
+                    </th:block>
+
+                </table>
+
+                <input type="button" value="선택삭제" id="deleteButton" onclick="checkDelete()"/>
+                <input type="button" value="등록하기" id="registerButton" th:onclick="|location.href='@{/admin/product/register}'|"/>
+
+                <!-- 페이징 -->
+                <!-- 상품이 없을 경우 페이징 숨기기 -->
+                <div class="paging" th:style="${#lists.size(products) == 0 ? 'visibility:hidden;':''}"  th:object="${ph}">
+                    <th:block th:if="*{showPrev}">
+                        <a th:href="@{/admin/product/list} + ${ph.sc.getQueryString(ph.beginPage-1)}" class="prev">< 이전</a>
+                    </th:block>
+
+                    <th:block th:each="num:${#numbers.sequence(ph.beginPage, ph.endPage)}">
+                        <a th:href="@{/admin/product/list} + ${ph.sc.getQueryString(num)}" th:class="${num == ph.sc.page ? 'num current':'num'}">
+                            [[${num}]]
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="*{showNext}">
+                        <a th:href="@{/admin/product/list} + ${ph.sc.getQueryString(ph.endPage+1)}" class="next">다음 ></a>
+                    </th:block>
+                </div>
+            </section>
+            <p class="ico info">
+                <strong>Tip!</strong>
+                전자상거래 등에서의 상품 등의 정보제공에 관한 고시에 따라 총 35개 상품군에 대해 상품 특성 등을 양식에 따라 입력할 수 있습니다.
+            </p>
+            <!-- 상품목록 컨텐츠 끝 -->
+        </section>
+</th:block>

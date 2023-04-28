@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/my_layout">
+<th:block layout:fragment="section">
+    <section>
+        <a href="#"><img th:src="@{/images/my_banner1.jpg}" alt="패션, 타운 하나로 끝" class="banner"></a>
+        <article>
+            <h3>전체주문내역</h3>
+
+            <div class="byDate">
+                <span class="tit">기간별조회</span>
+                <ul class="date_3ea">
+                    <li><a th:href="@{/my/searchPeriod/week}"><em>1</em>주일</a></li>
+                    <li><a th:href="@{/my/searchPeriod/fifteen}"><em>15</em>일</a></li>
+                    <li><a th:href="@{/my/searchPeriod/month}" class="on"><em>1</em>개월</a></li>
+                </ul>
+                <ul class="date_5ea">
+                    <th:block th:each="num:${#numbers.sequence(nowMonth-5, nowMonth)}">
+                        <li ><a href="#"><em>[[${num}]]</em>월</a></li>
+                    </th:block>
+                </ul>
+                <p>
+                    <input type="date" name="begin"><span>~</span><input type="date" name="end">
+                </p>
+                <button class="btnConfirm">조회하기</button>
+            </div>
+
+            <table border="0">
+                <tr>
+                    <th>날짜</th>
+                    <th>상품정보</th>
+                    <th>상태</th>
+                    <th>확인/신청</th>
+                </tr>
+                <tr th:each="order:${orderList}" th:data-prodNo="${order.prodNo}">
+                    <td class="date">
+                        [[${#strings.substring(order.ordDate, 0, 10)}]]
+                    </td>
+                    <td class="info">
+                        <a href="#" class="thumb">
+                            <img th:src="@{/file/} + ${order.thumb1}" alt="">
+                        </a>
+                        <ul>
+                            <li class="company">
+                                <a href="#" th:data-sellerUid="${order.sellerUid}">[[${order.company}]]</a>
+                            </li>
+                            <li class="prodName">
+                                <a href="#">[[${order.prodName}]]</a>
+                            </li>
+                            <li class="orderNo">
+                                수량:
+                                <span class="prodCount">[[${order.ordCount}]]</span>
+                                개 / 주문번호 :
+                                <a href="#" class="ordNo">[[${order.ordNo}]]</a>
+                            </li>
+                            <li class="prodPrice">[[${#numbers.formatInteger(order.ordPrice, 1, 'COMMA')}]]원</li>
+                        </ul>
+                    </td>
+                    <td class="status">[[${order.ordState}]]</td>
+                    <td class="confirm">
+                        <a href="#" class="receive">수취확인</a>
+                        <a href="#" class="review">상품평</a>
+                        <a href="#" class="refund">반품신청</a>
+                        <a href="#" class="exchange">교환신청</a>
+                    </td>
+                </tr>
+            </table>
+            <p class="page">
+
+                <th:block th:if="${ph.showPrev}">
+                    <a th:href="@{/my/ordered} + ${ph.sc.getQueryString(ph.beginPage-1)}" class="prev">이전</a>
+                </th:block>
+
+                <th:block th:each="num:${#numbers.sequence(ph.beginPage, ph.endPage)}">
+                    <a  th:href="@{/my/ordered} + ${ph.sc.getQueryString(num)}" th:class="${num == ph.sc.page ? 'num on':'num'}">
+                        [[${num}]]
+                    </a>
+                </th:block>
+
+                <th:block th:if="${ph.showNext}">
+                    <a th:href="@{/my/ordered} + ${ph.sc.getQueryString(ph.endPage+1)}" class="next">다음</a>
+                </th:block>
+
+            </p>
+        </article>
+    </section>
+</th:block>
+</html>
